@@ -1,23 +1,6 @@
 extends layout
 
-block contenido
-	div(class="container")
-		div(class="col-md-4 remove-float center-block  big-top-space")
-			form(action="/users", method="POST")
-				div(class="form-group")
-					label(for="email") Email
-					input(type="text" name="email" placeholder="Email" id="email" class="form-control")
-				div(class="form-group")
-					label(for="pass") Contraseña
-					input(type="password" name="pass" placeholder="Contraseña" id="pass"  class="form-control")
-				div(class="form-group")
-					label(for="password_confirmation") Confirma tu contraseña
-					input(type="password" name="password_confirmation" placeholder="Confirmar contraseña" id="password_confirmation"  class="form-control")
-				div(class="form-group")
-					label(for="username") Username
-					input(type="text" name="username" placeholder="Nombre de usuario" id="username"  class="form-control")
-				div(class="row")
-					div(class="col-xs-12 col-sm-6")
-						input(type="submit" value="Iniciar Sesion"  class="btn btn-info")
-					div(class="col-xs-12 col-sm-6 text-right")
-						a(href="/login") ya tengo una cuenta
+block content
+  h1= title
+  p Welcome to #{title}
+  p OTRA LINEA
