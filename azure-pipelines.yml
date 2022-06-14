@@ -49,10 +49,7 @@ stages:
         archiveType: zip
         archiveFile: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
         replaceExistingArchive: true
-        buildType: 'current'
-        artifactName: 'drop'
-        targetPath: '$(Pipeline.Workspace)'
-
+       
     - upload: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
       artifact: drop
 
@@ -72,7 +69,10 @@ stages:
           steps:
           - task: AzureWebApp@1
             displayName: 'Azure Web App Deploy: wfsuarezb-demoweb'
-            inputs:             
+            inputs:
+              buildType: 'current'
+              artifactName: 'drop'
+              targetPath: '$(Pipeline.Workspace)'
               azureSubscription: $(azureSubscription)
               appType: webAppLinux
               appName: $(webAppName)
