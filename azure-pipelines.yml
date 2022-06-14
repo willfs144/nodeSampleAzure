@@ -79,6 +79,6 @@ stages:
               runtimeStack: 'NODE|10.10'
               #package: $(Pipeline.Workspace)/drop/**/*.zip
               #package: $(Pipeline.Workspace)/drop/$(Build.BuildId).zip
-              #package: $(Pipeline.Workspace)/**/*.zip
-              packageForLinux: '$(Pipeline.Workspace)/drop/$(Build.BuildId).zip'
+              package: $(Pipeline.Workspace)/**/*.zip
+              #packageForLinux: '$(Pipeline.Workspace)/drop/$(Build.BuildId).zip'
               startUpCommand: 'npm run start'
