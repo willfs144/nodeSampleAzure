@@ -49,6 +49,9 @@ stages:
         archiveType: zip
         archiveFile: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
         replaceExistingArchive: true
+        buildType: 'current'
+        artifactName: 'drop'
+        targetPath: '$(Pipeline.Workspace)'
 
     - upload: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
       artifact: drop
@@ -69,15 +72,13 @@ stages:
           steps:
           - task: AzureWebApp@1
             displayName: 'Azure Web App Deploy: wfsuarezb-demoweb'
-            inputs:
-              buildType: 'current'
-              artifactName: 'drop'
-              targetPath: '$(Pipeline.Workspace)'
+            inputs:             
               azureSubscription: $(azureSubscription)
               appType: webAppLinux
               appName: $(webAppName)
               runtimeStack: 'NODE|10.10'
               #package: $(Pipeline.Workspace)/drop/**/*.zip
               #package: $(Pipeline.Workspace)/drop/$(Build.BuildId).zip
-              package: $(Pipeline.Workspace)/**/*.zip
+              #package: $(Pipeline.Workspace)/**/*.zip
+              packageForLinux: '$(Pipeline.Workspace)/drop/$(Build.BuildId).zip'
               startUpCommand: 'npm run start'
