@@ -1,6 +1,6 @@
-extends layout
-
-block content
-  h1= title
-  p Welcome to #{title}
-  p LINEA 2
+extends ./layout.jade
+block contenido
+	div(class="col-md-8 remove-float center-block text-center big-top-space")
+		h1 Bienvenido a node.js
+		a(href="/login" class="right-space") Iniciar Seccion
+		a(href="/signup") Registro
