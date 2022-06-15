@@ -2,17 +2,17 @@ extends layout
 
 block content
 
-h1 Manda tu mensaje!
+  h1 Manda tu mensaje!
 
-form(method='post', action='/')
-  fieldset
-    legend Mandame tu mensaje:
-    p.contenido
-      label Tu mensaje
-      input(name='mensaje')
-    p.contenido
-      label Tu nombre
-      input(name='name')
-    p.acciones
-      input(type='submit', value='Enviar')
+  form(method='post', action='/')
+    fieldset
+      legend Mandame tu mensaje:
+      p.contenido
+        label Tu mensaje
+        input(name='mensaje')
+      p.contenido
+        label Tu nombre
+        input(name='name')
+      p.acciones
+        input(type='submit', value='Enviar')
            
