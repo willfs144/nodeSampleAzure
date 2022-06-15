@@ -1,41 +1,110 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+var express = require("express");
+var bodyParser = require("body-parser");
+var mongoose = require("mongoose");
+var User = require("./models/user").User;
+var session = require("express-session");
+//var cookieSession = require("cookie-session");
+var router_app = require("./routes_app");
+var session_middleware = require("./middlewares/session");
+var formidable = require("express-formidable");
+var RedisStore = require("connect-redis")(session);
+var http = require('http');
+var realtime = require('./realtime');
+var methodOverride = require("method-override");// middlewares
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+var app = express(); // tomamos el objeto
+var server = http.Server(app);
 
-var app = express();
-
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
-
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
-
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
-
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
+var sessionMiddleware = session({
+	store: new RedisStore({port: 6379}),
+	secret:"super ultra secret word"
 });
 
-// error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+realtime(server, sessionMiddleware);
 
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
+//middlewares
+
+app.use("/public",express.static('public'));//archivos staticos css
+app.use(bodyParser.json());// para peticiones application/json
+app.use(bodyParser.urlencoded({extended: true}));// parsear tambien arreglos
+//app.use(express.static('assets'));//middlewares
+
+app.use(methodOverride("_method"));
+
+
+app.use(sessionMiddleware);
+
+/*app.use(cookieSession({
+	name:"session",
+	keys: ["llave-1", "llave-2"]
+}));*/
+
+/*app.use(session({
+	secret: "123byuhbsdah12ub",
+	resave: false, // la session no se vuelve a guardar 
+	saveUninitialized: false // no se guardara aun cuando esta inicializada
+
+}));*/
+//app.use(formidable.parse({ keepExtensions: true,uploadDir:"images"}));// cambiar la ruta de la imagen
+app.use(formidable.parse({ keepExtensions: true}));
+
+app.set("view engine", "jade");//implementa jade
+
+app.get("/", function(solicitud, respuesta){
+	console.log(solicitud.session.user_id);
+	respuesta.render("index");
 });
 
-module.exports = app;
+app.get("/signup", function(solicitud,respuesta){	
+	User.find(function(error, documento){
+		console.log(documento);
+	});
+	respuesta.render("signup");
+});
+
+app.get("/login", function(solicitud,respuesta){		
+	respuesta.render("login");
+});
+
+app.post("/users", function(solicitud, respuesta){
+	
+	var user = new User({
+							email:solicitud.body.email, 
+							password:solicitud.body.pass, 
+							password_confirmation:solicitud.body.password_confirmation,
+							username:solicitud.body.username
+						});
+	/*user.save(function(error){
+		if (error) {
+			console.log(String(error));
+		}
+		respuesta.send("Guardamos tus datos");
+	});*/
+	//promises lo que se usa hoy en dia 
+	user.save().then(function(usuarios){
+		respuesta.send("Guardamos tus datos");
+	}, function(error){
+		console.log(String(error));
+		respuesta.send("No pudimos guardar la información: "+error);
+	});
+	
+
+});
+
+app.post("/sessions", function(solicitud, respuesta){
+	
+		User.findOne({email:solicitud.body.email , password:solicitud.body.pass },"username email", function(error, user){
+			try {
+				solicitud.session.user_id = user._id;
+				respuesta.redirect("/app");
+			}catch(err) {
+				respuesta.send("No pudimos Iniciar session: "+err);
+			}
+			
+	});
+});
+
+app.use("/app",session_middleware);
+app.use("/app", router_app);
+//app.listen(8080);
+server.listen(8080);
